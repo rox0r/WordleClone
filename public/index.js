@@ -1,14 +1,22 @@
+let http = new XMLHttpRequest();
 var defaultGridSize = 5;
 var gridSize = defaultGridSize;
-var correctWord = "hello";
+var correctWord = "";
 var tiles = "";
 var row = 0;
 var gameGrid = "";
-var inputedWord = "hoxlo";
+var answer = document.getElementById("answer");
+var error = document.getElementById("error");
+var message = document.getElementById("message");
+
+//create Default Grid upon page load
 generateGrid(gridSize);
-//generateRandomWord(defaultGridSize);
-//checkWordExistence(inputedWord);
-//evaluateInput();
+generateRandomWord(gridSize);
+
+function clearMessages() {
+  error.innerHTML = "";
+  message.innerHTML = "";
+}
 
 // generateGrid function ---------------------------
 function generateGrid(gridSize) {
@@ -31,16 +39,32 @@ function generateRandomWord(gridSize) {
   http.send();
   http.onload = () => {
     if (http.status === 200) {
-      console.log("word generated successfully");
-      correctWord = JSON.parse(http.response);
-      inputedWord = correctWord;
-      console.log("InputWord set to: " + inputedWord);
+      correctWord = JSON.parse(http.response)[0]; // JSON str to js Obj, then [0] to get first element as string
+      answer.innerHTML = "Correct Word is " + correctWord;
     } else {
       document.getElementById(
         "error"
       ).innerHTML = `error ${http.status} : ${http.statusText}`;
     }
   };
+}
+
+// validateEnteredWord function ---------------------------
+
+function validateEnteredWord() {
+  inputedWord = document.getElementById("inputedWord").value;
+  document.getElementById("inputedWord").value = "";
+  if (inputedWord === "") {
+    error.innerHTML = "No word entered";
+  } else if (inputedWord.length < gridSize || inputedWord.length > gridSize) {
+    error.innerHTML =
+      "World length should be " +
+      gridSize +
+      " instead of " +
+      inputedWord.length;
+  } else {
+    checkWordExistence(inputedWord);
+  }
 }
 
 // checkWordExistence function ---------------------------
@@ -52,33 +76,41 @@ function checkWordExistence(inputedWord) {
   http.send();
   http.onload = () => {
     if (http.status === 200) {
-      evaluateInput();
+      createWordTiles(inputedWord);
     } else {
-      message.innerHTML = "Not an English Word!";
+      error.innerHTML = "Not an English Word!";
     }
   };
 }
 
-// evaluateInput function ---------------------------
-function evaluateInput() {
+// createWordTiles function ---------------------------
+function createWordTiles(inputedWord) {
+  let wordTile = "";
+  for (let i in inputedWord) {
+    wordTile += "<td id='wordTile" + row + i + "'>" + inputedWord[i] + "</td>";
+  }
+  let wordTiles = "<tr id='wordRow" + row + "'>" + wordTile + "</tr>";
+  document.getElementById("enteredWords").innerHTML += wordTiles;
+  matchWithAnswer(inputedWord);
+}
+
+// matchWithAnswer function ---------------------------
+function matchWithAnswer(inputedWord) {
   if (inputedWord === correctWord) {
-    document.getElementById("gridRow" + row).style.backgroundColor += "green";
+    document.getElementById("wordRow" + row).style.backgroundColor += "green";
     message.innerHTML = "YOU WON !!!!";
   } else {
     for (let i in inputedWord) {
-      let tile = document.getElementById("tile0" + i);
+      let tile = document.getElementById("wordTile" + row + i);
       if (inputedWord[i] === correctWord[i]) {
         tile.style.backgroundColor = "green";
       } else if (correctWord.includes(inputedWord[i])) {
         tile.style.backgroundColor = "orange";
       }
     }
+    row++;
     if (row === gridSize) {
-      message.innerHTML = "YOU LOST, GAME OVER !";
-    } else {
-      row++;
+      error.innerHTML = "YOU LOST, GAME OVER !";
     }
   }
 }
-
-function createTiles() {}
