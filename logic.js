@@ -1,19 +1,14 @@
 const https = require("https");
 
-function clearMessages() {
-  error = "";
-  message = "";
-}
-
 //Inside Module:
-function genWord(length, setErr) {
+function genWord(length, setAns, setErr) {
   var url = "https://random-word-api.herokuapp.com/word?length=" + length;
   https.get(url, function (res) {
     res.on("data", function (data) {
       if (res.statusCode === 200) {
         word = JSON.parse(data)[0];
         console.log("Generated word is: " + word);
-        return word;
+        setAns(word);
       } else {
         setErr(res.statusCode);
       }
@@ -31,17 +26,6 @@ function valWordLen(gridSize, inputedWord, setErr) {
       "World length should be " + gridSize + " instead of " + inputedWord.length
     );
   }
-
-  /*   if (inputedWord === "") {
-    setErr("No word entered");
-  } else if (inputedWord.length < gridSize || inputedWord.length > gridSize) {
-    setErr(
-      "World length should be " + gridSize + " instead of " + inputedWord.length
-    );
-  } else {
-    console.log("Word length is ok");
-    return true;
-  } */
 }
 
 // checkWordExistence function ---------------------------
@@ -54,19 +38,21 @@ function isAWord(inputedWord, cb) {
       if (res.statusCode === 200) {
         cb("true");
       } else {
-        cb("false");
+        setErr("Not an English Word");
       }
     });
   });
 }
 
-function setBgColor(correctWord, inputedWord, addWordClasses) {
+function setBgColor(ans, inputedWord) {
   console.log("genClasses func started");
+  console.log(ans);
+  console.log(inputedWord);
   let charClass = [];
   for (let i in inputedWord) {
-    if (inputedWord[i] === correctWord[i]) {
+    if (inputedWord[i] === ans[i]) {
       charClass.push("posMatch");
-    } else if (correctWord.includes(inputedWord[i])) {
+    } else if (ans.includes(inputedWord[i])) {
       charClass.push("charMatch");
     } else {
       charClass.push("");
@@ -77,36 +63,27 @@ function setBgColor(correctWord, inputedWord, addWordClasses) {
 
 function evalGameStatus(
   inputedWord,
-  correctWord,
+  ans,
   row,
   gridSize,
   setMsg,
   setErr,
-  setRow
+  setGameStatus
 ) {
-  console.log("gameStatus func started");
-  if (inputedWord === correctWord) {
+  console.log("evalGameStatus func started");
+  if (inputedWord === ans) {
     setMsg("You Won!");
-  } else {
-    row++;
-    if (row === gridSize) {
-      setErr("YOU LOST, GAME OVER !");
-    } else {
-      setRow();
-    }
+    setGameStatus("over");
+  } else if (row === gridSize) {
+    setErr("YOU LOST, GAME OVER !");
+    setGameStatus("over");
   }
 }
 
-function test() {
-  console.log("testing export- success");
-}
-
 module.exports = {
-  clearMessages,
   genWord,
   valWordLen,
   isAWord,
   setBgColor,
   evalGameStatus,
-  test,
 };
