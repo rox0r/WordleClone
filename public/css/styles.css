@@ -18,3 +18,27 @@ td {
 #error {
   color: red;
 }
+
+#message {
+  color: green;
+}
+
+#gameGridContainer {
+  position: relative;
+}
+
+#enteredWords {
+  position: absolute;
+}
+
+#gameGrid {
+  position: relative;
+}
+
+.posMatch {
+  background-color: green;
+}
+
+.charMatch {
+  background-color: orange;
+}

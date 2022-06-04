@@ -9,16 +9,18 @@
     <title>Wordle Lookalike Project</title>
   </head>
   <body>
-    <div id="error"></div>
-    <div id="message"></div>
-    <div id="container">
+    <div id="answer"></div>
+    <div id="gameGridContainer">
+      <table id="enteredWords"></table>
       <table id="gameGrid"></table>
     </div>
-    <form action="/" method="post">
-      <input type="text" name="word" />
-      <button type="submit" name="submit">Submit</button>
+    <form onsubmit="return false;">
+      <input onfocus="clearMessages()" id="inputedWord" type="text" />
+      <button onclick="validateEnteredWord()" type="submit">Check</button>
     </form>
-    <button onclick="generateGrid(5)">Start Game</button>
+    <div id="error"></div>
+    <div id="message"></div>
+    <!-- <button onclick="generateGrid(5)">Start Game</button> -->
     <script src="/index.js"></script>
   </body>
 </html>

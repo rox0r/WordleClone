@@ -9,9 +9,17 @@
     <title>Wordle Lookalike Project</title>
   </head>
   <body>
-    <div id="error"></div>
-    <div id="message"></div>
-    <div id="container">
+    <div id="answer"><%=answer %></div>
+    <div id="gameGridContainer">
+      <table id="enteredWords">
+        <%enteredWords.forEach(function(word, index){ %>
+        <tr id="">
+          <%for(let i in word){%>
+          <td class="<%=wordClasses[index][i] %>"><%=word[i] %></td>
+          <%}%>
+        </tr>
+        <%})%>
+      </table>
       <table id="gameGrid">
         <% for (let i = 0; i < gridSize; i++) { %>
         <tr id="gridRow<%= i %>">
@@ -22,11 +30,13 @@
         <% } %>
       </table>
     </div>
-    <form action="/" method="post">
-      <input type="text" name="word" />
-      <button type="submit" name="submit">Submit</button>
+    <form action="/" method="POST">
+      <input id="inputedWord" type="text" name="inputedWord" />
+      <button type="submit">Check</button>
     </form>
-    <button onclick="evaluateInput()">Click</button>
+    <div id="error"><%=error %></div>
+    <div id="message"><%=message %></div>
+    <!-- <button onclick="generateGrid(5)">Start Game</button> -->
     <script src="/index.js"></script>
   </body>
 </html>
