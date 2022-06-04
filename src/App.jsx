@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Wordle from "./components/Wordle";
 import "./index.css";
 
+// Just a random comment
+
 export default function App() {
   const [solution, setSolution] = useState(null);
   const [wordLength, setWordLength] = useState(5);
