@@ -1,0 +1,30 @@
+table {
+  border-spacing: 5px;
+  opacity: 0.75;
+}
+
+td {
+  font-size: 20px;
+  color: #fff;
+  width: 50px;
+  height: 50px;
+  border: 2px solid gray;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.gameGridContainer {
+  position: relative;
+}
+
+.wordsTable {
+  position: absolute;
+}
+
+.gridTable {
+  position: relative;
+}
+
+.currentTile {
+  background-color: gray;
+}
