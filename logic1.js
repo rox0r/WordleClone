@@ -6,14 +6,14 @@ function clearMessages() {
 }
 
 //Inside Module:
-function genWord(length, setErr) {
+function generateRandomWord(length, setAns, setErr) {
   var url = "https://random-word-api.herokuapp.com/word?length=" + length;
   https.get(url, function (res) {
     res.on("data", function (data) {
       if (res.statusCode === 200) {
         word = JSON.parse(data)[0];
         console.log("Generated word is: " + word);
-        return word;
+        setAns(word);
       } else {
         setErr(res.statusCode);
       }
@@ -22,46 +22,99 @@ function genWord(length, setErr) {
 }
 
 // validateEnteredWord function ---------------------------
-function valWordLen(gridSize, inputedWord, setErr) {
-  if (inputedWord.length === gridSize) {
-    console.log("Word length is ok");
-    return true;
-  } else {
-    setErr(
-      "World length should be " + gridSize + " instead of " + inputedWord.length
-    );
-  }
 
-  /*   if (inputedWord === "") {
+function validateEnteredWord(
+  https,
+  gridSize,
+  correctWord,
+  row,
+  inputedWord,
+  addWords,
+  addWordClasses,
+  setMsg,
+  setErr,
+  setRow,
+  redirect
+) {
+  if (inputedWord === "") {
     setErr("No word entered");
+    redirect();
   } else if (inputedWord.length < gridSize || inputedWord.length > gridSize) {
     setErr(
       "World length should be " + gridSize + " instead of " + inputedWord.length
     );
+    redirect();
   } else {
-    console.log("Word length is ok");
-    return true;
-  } */
+    checkWordExistence(
+      https,
+      gridSize,
+      correctWord,
+      row,
+      inputedWord,
+      addWords,
+      addWordClasses,
+      setMsg,
+      setErr,
+      setRow,
+      redirect
+    );
+  }
 }
 
 // checkWordExistence function ---------------------------
-function isAWord(inputedWord, cb) {
-  console.log("checkWordExistence func started");
+function checkWordExistence(
+  https,
+  gridSize,
+  correctWord,
+  row,
+  inputedWord,
+  addWords,
+  addWordClasses,
+  setMsg,
+  setErr,
+  setRow,
+  redirect
+) {
   let url = "https://api.dictionaryapi.dev/api/v2/entries/en/" + inputedWord;
 
   https.get(url, function (res) {
     res.on("data", function (data) {
       if (res.statusCode === 200) {
-        cb("true");
+        addWords(inputedWord);
+        processInputWord(
+          https,
+          gridSize,
+          correctWord,
+          row,
+          inputedWord,
+          addWords,
+          addWordClasses,
+          setMsg,
+          setErr,
+          setRow,
+          redirect
+        );
       } else {
-        cb("false");
+        setErr("Not an English Word!");
+        redirect();
       }
     });
   });
 }
 
-function setBgColor(correctWord, inputedWord, addWordClasses) {
-  console.log("genClasses func started");
+function processInputWord(
+  https,
+  gridSize,
+  correctWord,
+  row,
+  inputedWord,
+  addWords,
+  addWordClasses,
+  setMsg,
+  setErr,
+  setRow,
+  redirect
+) {
   let charClass = [];
   for (let i in inputedWord) {
     if (inputedWord[i] === correctWord[i]) {
@@ -72,19 +125,7 @@ function setBgColor(correctWord, inputedWord, addWordClasses) {
       charClass.push("");
     }
   }
-  return charClass;
-}
-
-function evalGameStatus(
-  inputedWord,
-  correctWord,
-  row,
-  gridSize,
-  setMsg,
-  setErr,
-  setRow
-) {
-  console.log("gameStatus func started");
+  addWordClasses(charClass);
   if (inputedWord === correctWord) {
     setMsg("You Won!");
   } else {
@@ -95,6 +136,7 @@ function evalGameStatus(
       setRow();
     }
   }
+  redirect();
 }
 
 function test() {
@@ -103,10 +145,9 @@ function test() {
 
 module.exports = {
   clearMessages,
-  genWord,
-  valWordLen,
-  isAWord,
-  setBgColor,
-  evalGameStatus,
+  generateRandomWord,
+  validateEnteredWord,
+  checkWordExistence,
+  processInputWord,
   test,
 };

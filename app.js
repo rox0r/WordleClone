@@ -7,11 +7,10 @@ const app = express();
 
 var defaultGridSize = 5;
 var gridSize = defaultGridSize;
-var correctWord = "";
 var row = 0;
-var answer = "";
-var error = "";
+var correctWord = logic.genWord(gridSize, setErr);
 var message = "";
+var error = "";
 const enteredWords = [];
 const wordClasses = [];
 var testingCode = "qwerty";
@@ -23,13 +22,10 @@ app.set("view-engine", "ejs");
 logic.test();
 console.log(testingCode);
 
-logic.generateRandomWord(https, gridSize, setAns, setErr);
-
-function setAns(res) {
-  correctWord = res;
+function setAns(word) {
+  correctWord = word;
   answer = "Correct Word is: " + correctWord;
-  console.log("ans Setter");
-  console.log(correctWord);
+  console.log("Ans Set to: " + correctWord);
 }
 function setRow(res) {
   row++;
@@ -57,10 +53,13 @@ function addWordClasses(charClass) {
   console.log("charClass added to wordClasses Arr");
 }
 
+function cb(status) {
+  return status;
+}
+
 app.get("/", function (req, res) {
   res.render("game.ejs", {
     gridSize: gridSize,
-    answer: answer,
     error: error,
     message: message,
     enteredWords: enteredWords,
@@ -69,24 +68,43 @@ app.get("/", function (req, res) {
 });
 
 app.post("/", function (req, res) {
+  let inputedWord = req.body.inputedWord;
   error = "";
   message = "";
-  logic.validateEnteredWord(
-    https,
-    gridSize,
-    correctWord,
-    row,
-    req.body.inputedWord,
-    addWords,
-    addWordClasses,
-    setMsg,
-    setErr,
-    setRow,
-    redirect
-  );
-  function redirect() {
-    console.log(wordClasses);
+
+  // validate word length
+  if (logic.valWordLen(gridSize, inputedWord, setErr)) {
+    // validate if input is english word
+    if (inputedWord) {
+      enteredWords.push(inputedWord);
+      // generate classes for word characters
+      let bgClasses = logic.setBgColor(
+        correctWord,
+        inputedWord,
+        addWordClasses
+      );
+      addWordClasses(bgClasses);
+      // eval game win-loose status
+      logic.evalGameStatus(
+        inputedWord,
+        correctWord,
+        row,
+        gridSize,
+        setMsg,
+        setErr,
+        setRow
+      );
+      res.redirect("/");
+    } else {
+      setErr("Not an English Word");
+      res.redirect("/");
+    }
+  } else {
     res.redirect("/");
+  }
+
+  function reDirect(route) {
+    res.redirect(route);
   }
 });
 
